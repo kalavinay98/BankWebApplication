@@ -2,18 +2,29 @@
 
 namespace BankWebApplication.Data
 {
-    public class AppDbContext :DbContext
+    public class AppDbContext : DbContext
     {
-        public IConfiguration _config {get; set;}
-        public AppDbContext(IConfiguration config) 
+        // Configuration property
+        private readonly IConfiguration _config;
+
+        // Constructor with IConfiguration dependency injection
+        public AppDbContext(IConfiguration config)
         {
             _config = config;
         }
+
+        // Override OnConfiguring to use SQL Server
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(_config.GetConnectionString("DatabaseConnection"));
-
+            if (!optionsBuilder.IsConfigured) // Ensures options aren't configured twice
+            {
+                optionsBuilder.UseSqlServer(_config.GetConnectionString("DatabaseConnection"));
+            }
         }
-                public DbSet<UsersTable> Users { get; set; } // Ensure this is added
+
+        // DbSets for Users, Accounts, and Transactions
+        public DbSet<UsersTable> Users { get; set; }
+        public DbSet<Account> Accounts { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
     }
 }
